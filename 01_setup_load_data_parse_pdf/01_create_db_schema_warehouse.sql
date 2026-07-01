@@ -1,0 +1,33 @@
+/*=============================================================================
+ HR POLICIES CHAT AGENT — SETUP SCRIPT
+  Creates database, schema, warehouse and resource monitor.
+=============================================================================*/
+
+USE ROLE ACCOUNTADMIN;
+
+CREATE DATABASE IF NOT EXISTS HR_POLICIES_DB;
+CREATE SCHEMA IF NOT EXISTS HR_POLICIES_DB.DEV;
+
+--warehouse to execute all workloads
+CREATE OR REPLACE WAREHOUSE CORTEX_DEMO_WH WITH
+WAREHOUSE_SIZE= 'X-SMALL'
+AUTO_SUSPEND=120
+AUTO_RESUME= TRUE
+INITIALLY_SUSPENDED=TRUE;
+
+--Resource Monitor for monitoring warehouse cost
+CREATE OR REPLACE RESOURCE MONITOR CORTEX_DEMO_COST_MONITOR
+  WITH CREDIT_QUOTA = 30
+  FREQUENCY = MONTHLY
+  START_TIMESTAMP = IMMEDIATELY
+  TRIGGERS
+    ON 80 PERCENT DO NOTIFY
+    ON 90 PERCENT DO SUSPEND
+    ON 100 PERCENT DO SUSPEND_IMMEDIATE;
+
+--Attach RM to the the warehouse
+ALTER WAREHOUSE CORTEX_DEMO_WH
+  SET RESOURCE_MONITOR = CORTEX_DEMO_COST_MONITOR;
+
+--Grant cortex user role to accountadmin.
+GRANT DATABASE ROLE SNOWFLAKE.CORTEX_USER TO ROLE ACCOUNTADMIN;
