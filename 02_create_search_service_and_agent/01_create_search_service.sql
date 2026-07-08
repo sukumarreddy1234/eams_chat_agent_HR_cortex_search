@@ -64,7 +64,7 @@ SELECT SNOWFLAKE.CORTEX.SEARCH_PREVIEW(
 
 
 
-*-----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
   STEP 3: RAG PATTERN — Search + AI_COMPLETE for grounded answers
   Retrieve relevant documents, then use them as context for LLM generation.
   This is the enterprise chatbot pattern.
