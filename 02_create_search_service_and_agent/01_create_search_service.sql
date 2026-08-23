@@ -63,7 +63,6 @@ SELECT SNOWFLAKE.CORTEX.SEARCH_PREVIEW(
 ) AS SEARCH_RESULTS;
 
 
-
 /*-----------------------------------------------------------------------------
   STEP 3: RAG PATTERN — Search + AI_COMPLETE for grounded answers
   Retrieve relevant documents, then use them as context for LLM generation.
@@ -91,7 +90,7 @@ CONTEXT_DOCS AS (
     FROM SEARCH_RESULTS, LATERAL FLATTEN(input => RESULTS:results) r
 )
 SELECT SNOWFLAKE.CORTEX.AI_COMPLETE(
-    'mistral-large2',
+    'claude-4-sonnet',
     'You are a helpful HR policy assistant. Answer the question based ONLY on the provided sources.
      Cite your sources in brackets. If the answer is not in the sources, say so.\n\nSOURCES:\n'
     || COMBINED_CONTEXT

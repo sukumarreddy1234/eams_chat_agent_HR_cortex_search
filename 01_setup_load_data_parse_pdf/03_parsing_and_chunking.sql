@@ -21,7 +21,8 @@ FROM
 WHERE
     RELATIVE_PATH LIKE '%.pdf';
 
--- SELECT  * FROM HR_POLICIES_DB.DEV.RAW_TEXT;
+SELECT * FROM HR_POLICIES_DB.DEV.RAW_TEXT;
+
 
 --Splitting the document into chunks of maximum size of 2000 character each,
 --using the top two markdown header levels as chunk boundaries.
@@ -47,4 +48,4 @@ LATERAL FLATTEN( SNOWFLAKE.CORTEX.SPLIT_TEXT_MARKDOWN_HEADER(
 ))c;
 
 
--- SELECT  * FROM HR_POLICIES_DB.DEV.DOC_CHUNKS;
+SELECT  * FROM HR_POLICIES_DB.DEV.DOC_CHUNKS;
