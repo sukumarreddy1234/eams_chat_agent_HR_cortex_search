@@ -15,13 +15,13 @@ Components:
 - CREATE AGENT with cortex_search tool
 - Conversational HR support demonstrated via DATA_AGENT_RUN
 =============================================================================*/
-
 USE DATABASE HR_POLICIES_DB;
 USE SCHEMA HR_POLICIES_DB.DEV;
 USE WAREHOUSE CORTEX_DEMO_WH;
-
-CREATE OR REPLACE AGENT HR_POLICIES_DB.DEV.HR_POLICY_AGENT
-  FROM SPECIFICATION $$
+CREATE
+OR REPLACE AGENT HR_POLICIES_DB.DEV.HR_POLICY_AGENT
+FROM
+    SPECIFICATION $$
 models:
   orchestration: auto
 instructions:
@@ -72,46 +72,66 @@ tool_resources:
     name: HR_POLICIES_DB.DEV.POLICY_SEARCH
     max_results: 5
 $$;
-
 -- Verify
-SHOW AGENTS IN SCHEMA HR_POLICIES_DB.DEV;
-
-
-
-/*-----------------------------------------------------------------------------
-  Testing non existent information questions with Agent
------------------------------------------------------------------------------*/
-
---This detail doesnt exist in any document so it should not return any policy details and ask to reach out to HR team.
-WITH RESP AS (
-  SELECT TRY_PARSE_JSON(SNOWFLAKE.CORTEX.DATA_AGENT_RUN(
-    'HR_POLICIES_DB.DEV.HR_POLICY_AGENT',
-    $${ "messages": [{"role": "user", "content": [{"type": "text", "text": "What is our remote work policy? How many days do I need to be in office?"}]}] }$$,
-    TRUE)) AS R
-)
-SELECT f.value:text::STRING AS ANSWER FROM RESP, LATERAL FLATTEN(input => R:content) f WHERE f.value:type = 'text';
-
-/*-----------------------------------------------------------------------------
-  Testing relevant questions with Agent
------------------------------------------------------------------------------*/
-
-WITH RESP AS (
-  SELECT TRY_PARSE_JSON(SNOWFLAKE.CORTEX.DATA_AGENT_RUN(
-    'HR_POLICIES_DB.DEV.HR_POLICY_AGENT',
-    $${ "messages": [{"role": "user", "content": [{"type": "text", "text": "What all travel expense are covered for Europe and how much?"}]}] }$$,
-    TRUE)) AS R
-)
-SELECT f.value:text::STRING AS ANSWER FROM RESP, LATERAL FLATTEN(input => R:content) f WHERE f.value:type = 'text';
-
-
-/*-----------------------------------------------------------------------------
-  Testing questions which need reference to multiple pdfs at once.
------------------------------------------------------------------------------*/
-
-WITH RESP AS (
-  SELECT TRY_PARSE_JSON(SNOWFLAKE.CORTEX.DATA_AGENT_RUN(
-    'HR_POLICIES_DB.DEV.HR_POLICY_AGENT',
-    $${ "messages": [{"role": "user", "content": [{"type": "text", "text": "What is the leave policy for employees during the notice period??"}]}] }$$,
-    TRUE)) AS R
-)
-SELECT f.value:text::STRING AS ANSWER FROM RESP, LATERAL FLATTEN(input => R:content) f WHERE f.value:type = 'text';
+    SHOW AGENTS IN SCHEMA HR_POLICIES_DB.DEV;
+    /*-----------------------------------------------------------------------------
+      Testing non existent information questions with Agent
+    -----------------------------------------------------------------------------*/
+    --This detail doesnt exist in any document so it should not return any policy details and ask to reach out to HR team.
+    WITH RESP AS (
+        SELECT
+            TRY_PARSE_JSON(
+                SNOWFLAKE.CORTEX.DATA_AGENT_RUN(
+                    'HR_POLICIES_DB.DEV.HR_POLICY_AGENT',
+                    $${ "messages": [{"role": "user", "content": [{"type": "text", "text": "What is our remote work policy? How many days do I need to be in office?"}]}] }$$,
+                    TRUE
+                )
+            ) AS R
+    )
+SELECT
+    f.value:text::STRING AS ANSWER
+FROM
+    RESP,
+    LATERAL FLATTEN(input => R:content) f
+WHERE
+    f.value:type = 'text';
+    /*-----------------------------------------------------------------------------
+      Testing relevant questions with Agent
+    -----------------------------------------------------------------------------*/
+    WITH RESP AS (
+        SELECT
+            TRY_PARSE_JSON(
+                SNOWFLAKE.CORTEX.DATA_AGENT_RUN(
+                    'HR_POLICIES_DB.DEV.HR_POLICY_AGENT',
+                    $${ "messages": [{"role": "user", "content": [{"type": "text", "text": "What all travel expense are covered for Europe and how much?"}]}] }$$,
+                    TRUE
+                )
+            ) AS R
+    )
+SELECT
+    f.value:text::STRING AS ANSWER
+FROM
+    RESP,
+    LATERAL FLATTEN(input => R:content) f
+WHERE
+    f.value:type = 'text';
+    /*-----------------------------------------------------------------------------
+      Testing questions which need reference to multiple pdfs at once.
+    -----------------------------------------------------------------------------*/
+    WITH RESP AS (
+        SELECT
+            TRY_PARSE_JSON(
+                SNOWFLAKE.CORTEX.DATA_AGENT_RUN(
+                    'HR_POLICIES_DB.DEV.HR_POLICY_AGENT',
+                    $${ "messages": [{"role": "user", "content": [{"type": "text", "text": "What is the leave policy for employees during the notice period??"}]}] }$$,
+                    TRUE
+                )
+            ) AS R
+    )
+SELECT
+    f.value:text::STRING AS ANSWER
+FROM
+    RESP,
+    LATERAL FLATTEN(input => R:content) f
+WHERE
+    f.value:type = 'text';

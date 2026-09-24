@@ -18,3 +18,7 @@ ENCRYPTION = (TYPE ='SNOWFLAKE_SSE')
 After creating stage, go ahead and upload all pdfs to the stage you just created 
 using snowsight data load feature
 */
+
+snow stage copy /workspace/source_data/HR_policies_data_kaggle/ @HR_POLICIES_DB.DEV.POLICIES_STAGE; --overwrite 2>&1
+
+LS @HR_POLICIES_DB.DEV.POLICIES_STAGE;
